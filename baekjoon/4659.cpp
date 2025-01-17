@@ -1,61 +1,88 @@
 #include <iostream>
+#include <vector>
 #include <string>
 using namespace std;
 
 int main(){
-    string data;
-    cin >> data;
-    string mo = "aeiou";
+    int n;
+    cin >> n;
+    cin.ignore(); 
 
-    while(data != "end"){
-        bool answer = false;
+    vector<string> map;
 
-        // 조건 1, 모음 하나 반드시 포함
-        for(auto i : data){
-            if(mo.find(i) != string::npos){
-                answer = true;
+    for(int i=0; i<n; i++){
+        string data;
+        getline(cin, data);
+        map.push_back(data);
+    }
+
+    pair<int,int> head;
+    bool break_flag = false;
+    for(int i=0; i<n; i++){
+        for(int j=0; j<n; j++){
+            if(map[i][j] == '*'){
+                head = make_pair(i,j);
+                break_flag = true;
                 break;
             }
         }
+        if(break_flag) break;
+    }
 
-        // 조건 2, 모음 3개 or 자음 3개 연속 X
-        int mo_cnt = 0, ja_cnt = 0;
-        for(auto i : data){
-            if(mo.find(i) != string::npos){
-                mo_cnt++; ja_cnt = 0;
-                if(mo_cnt >= 3){
-                    answer = false;
-                    break;
-                }
-            }
-            else{
-                mo_cnt = 0; ja_cnt++;
-                if(ja_cnt >= 3){
-                    answer = false;
-                    break;
-                }
-            }
+    int left_arm, right_arm, left_leg, right_leg, body_len;
+
+    // left_arm
+    for(int i=0; i<n; i++){
+        if(map[head.first+1][i] == '*'){
+            left_arm = head.second - i;
+            break;
         }
+    }
 
-        //조건 3, 같은글자 연속 2번 X (ee, oo는 허용)
-        for(int i=1; i<data.size(); i++){
-            if(data[i] == data[i-1]){
-                if(data[i] != 'e' && data[i] != 'o'){
-                    answer = false;
-                    break;
-                }
-            }
+    // right_arm
+    for(int i=n-1; i>=0; i--){
+        if(map[head.first+1][i] == '*'){
+            right_arm = i - head.second;
+            break;
         }
+    }
 
-
-        //출력하기
-        if(answer){
-            cout << "<" << data << ">" << " is acceptable." << endl;
+    // body_len
+    body_len = 0;
+    for(int i=head.first+2; i<n; i++){
+        if(map[i][head.second] == '*'){
+            body_len++;
         }
         else{
-            cout << "<" << data << ">" << " is not acceptable." << endl;
+            break;
         }
-
-        cin >> data;
     }
-}
+
+    pair<int,int> leg = make_pair(head.first+body_len+1, head.second);
+
+    //left_leg
+    left_leg = 0;
+    for(int i=leg.first+1; i<n; i++){
+        if(map[i][leg.second-1] == '*'){
+            left_leg++;
+        }
+        else{
+            break;
+        }
+    }
+
+    //right_leg
+    right_leg = 0;
+    for(int i=leg.first+1; i<n; i++){
+        if(map[i][leg.second+1] == '*'){
+            right_leg++;
+        }
+        else{
+            break;
+        }
+    }
+
+    cout << head.first+2 << " " << head.second+1 << endl;
+    cout << left_arm << " " << right_arm << " "
+    << body_len << " " << left_leg << " " << right_leg << endl;
+}   
